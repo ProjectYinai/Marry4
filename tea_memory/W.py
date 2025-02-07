@@ -53,6 +53,14 @@ async def msg_sent(bot, event,matcher,stamp,id,iden,msg_s):
     else:
         PA5=a4
     
+    friend=iden[0]
+    with open(FP+"/tea/friend_list.json","r",encoding='utf-8') as tea_json:
+        friend_list=json.load(tea_json)
+        tea_json.close()
+    if puid in friend_list:
+        friend=1
+    else:
+        friend=0
     
     #是否为群聊？
     #输出替换？
@@ -86,7 +94,7 @@ async def msg_sent(bot, event,matcher,stamp,id,iden,msg_s):
                 msg_t="群消息发送失败！请检查是否风控！"
                 await bot.send_private_msg(user_id=str(2373725901),message=msg_t)
                 time_1=stamp[0]+3600
-    elif iden[0]:
+    elif friend:
         await bot.send_private_msg(user_id=str(uid),message=msg_t)
         time.sleep(0.1)
 

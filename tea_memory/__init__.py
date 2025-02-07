@@ -24,6 +24,7 @@ from nonebot.params import EventMessage, EventPlainText, Arg, CommandArg, ArgPla
 from nonebot.matcher import Matcher # type: ignore
 from nonebot.rule import to_me, keyword, startswith # type: ignore
 from nonebot.adapters.onebot.v11 import PrivateMessageEvent, GroupMessageEvent # type: ignore
+from nonebot_plugin_apscheduler import scheduler
 
 
 _n="\n"
@@ -47,25 +48,39 @@ code_listg=["g1","g2","g3","g4",
             "s1","s2","s3",
             "t1","t2","t3","t4"]
 
-from . import A,B,C,D,E,V,W,X,Z
+from . import A,B,C,D,E,V,W,X,Y,Z
 X_tea_message=on_message(priority=99,block=False)
 @X_tea_message.handle()
 async def X_tea_message(bot: Bot, event: Event, matcher: Matcher):
     #定时刷新信息
     #储存数据
-    #监测领养人管理员身份
+    #监测领养人管理员身份#
     #未授权提示
     print("HANDLE:X")
+    print(int(round(time.time()*1000)))
     stamp,id,iden=await birthday(bot, event, matcher)
     await X.tea_message(bot, event,matcher,stamp,id,iden)
+    print(int(round(time.time()*1000)))
+    await matcher.finish()
+
+Y_tea_notice=on_notice(priority=99,block=False)
+@Y_tea_notice.handle()
+async def Y_tea_notice(bot: Bot, event: Event, matcher: Matcher):
+    print("HANDLE:Y")
+    stamp=await stamp_def(bot, event, matcher)
+    id=await id_def(bot, event, matcher)
+    await Y.tea_notice(bot, event,matcher,stamp,id)
     await matcher.finish()
 
 Z_tea_request=on_request(priority=99,block=False)
 @Z_tea_request.handle()
 async def Z_tea_request(bot: Bot, event: Event, matcher: Matcher):
     print("HANDLE:Z")
+    #print(int(round(time.time()*1000)))
     stamp,id,iden=await birthday(bot, event, matcher)
+    
     await Z.tea_request(bot, event,matcher,stamp,id,iden)
+    #print(int(round(time.time()*1000)))
     await matcher.finish()
 
 #================================================
@@ -79,9 +94,11 @@ A_tea_time_2=on_startswith(command_A2,priority=3,block=True)
 @A_tea_time_2.handle()
 async def A_tea_time(bot: Bot, event: Event, matcher: Matcher):#泡茉莉
     print("HANDLE:A")
+    #print(int(round(time.time()*1000)))
     stamp,id,iden=await birthday(bot, event, matcher)
     if iden[1] and iden[2] and iden[3]:
         await A.tea_time(bot, event,matcher,stamp,id,iden)
+    #print(int(round(time.time()*1000)))
     await matcher.finish()
 
 command_B1={"茉莉帮助",
@@ -92,22 +109,26 @@ B_help_1=on_fullmatch(command_B1,priority=2,block=True)
 @B_help_1.handle()
 async def B_help(bot: Bot, event: Event, matcher: Matcher):
     print("HANDLE:B")
+    #print(int(round(time.time()*1000)))
     stamp,id,iden=await birthday(bot, event, matcher)
     if iden[1] and iden[2] and iden[3]:
         await B.help(bot, event,matcher,stamp,id,iden)
+    #print(int(round(time.time()*1000)))
     await matcher.finish()
 
 
 
-#command_C1={}
+command_C1={"一键删除好友"}
 command_C2={"/同意昵称","/拒绝昵称","强制刷新群",
-            "强制修改","强制更改"}
-#C_admin_1=on_fullmatch(command_C1,priority=2,block=True)
+            "强制修改","强制更改",
+            "添加群白名单"}
+C_admin_1=on_fullmatch(command_C1,priority=2,block=True)
 C_admin_2=on_startswith(command_C2,priority=2,block=True)
-#@C_admin_1.handle()
+@C_admin_1.handle()
 @C_admin_2.handle()
 async def C_admin(bot: Bot, event: Event, matcher: Matcher):
     print("HANDLE:C")
+    #print(int(round(time.time()*1000)))
     stamp,id,iden=await birthday(bot, event, matcher)
     #管理员指令
     #1、强制更改
@@ -116,6 +137,7 @@ async def C_admin(bot: Bot, event: Event, matcher: Matcher):
 
     if iden[1] and iden[2] and id[0] in pioneer and iden[3]:
         await C.admin(bot, event,matcher,stamp,id,iden)
+    #print(int(round(time.time()*1000)))
     await matcher.finish()
 
 #command_D1={}
@@ -126,12 +148,14 @@ D_applicant_2=on_startswith(command_D2,priority=2,block=True)
 @D_applicant_2.handle()
 async def D_applicant(bot: Bot, event: Event, matcher: Matcher):
     print("HANDLE:D")
+    #print(int(round(time.time()*1000)))
     stamp,id,iden=await birthday(bot, event, matcher)
     #领养人指令
     #1、申请授权
 
     if iden[1] and iden[2]!=-1:
         await D.applicant(bot, event,matcher,stamp,id,iden)
+    #print(int(round(time.time()*1000)))
     await matcher.finish()
 
 
@@ -143,36 +167,107 @@ E_group_wife_2=on_startswith(command_E2,priority=5,block=True)
 @E_group_wife_2.handle()
 async def E_group_wife(bot: Bot, event: Event, matcher: Matcher):
     print("HANDLE:E")
+    #print(int(round(time.time()*1000)))
     stamp,id,iden=await birthday(bot, event, matcher)
     if iden[1] and iden[2] and iden[3]:
         await E.group_wife(bot, event,matcher,stamp,id,iden)
+    #print(int(round(time.time()*1000)))
     await matcher.finish()
+
+#================================================
+global friend_list
+@scheduler.scheduled_job("interval", minutes=60, id="job_0")
+async def run_every_1_hour():
+    print("SCHEDULER:job_0")
+    bot = get_bot()
+    stamp=await stamp_def(bot, 1, 2)
+    global friend_list
+    with open(FP+"/tea/friend_list.json","r",encoding='utf-8') as tea_json:
+            friend_list=json.load(tea_json)
+            tea_json.close()
+
+
+@scheduler.scheduled_job("cron", hour="3", id="job_1")
+async def run_every_1_day():
+    print("SCHEDULER:job_1")
+    bot = get_bot()
+    stamp=await stamp_def(bot, 1, 2)
+    bot=get_bot()
+    friend=await bot.get_friends_with_category()
+
+    t1=0
+    t2=0
+    for i in friend[1]["buddyList"]:
+        #print("DEF:force_modify"+str(t1))
+        t1+=1
+        uid_a=i["user_id"]
+        b1=(await V.selecting(uid_a,"G5000","b1"))[0]
+        if b1+90<=stamp[4]:
+            await bot.delete_friend(user_id=uid_a)
+            time.sleep(1)
+            t2+=1
+
+@scheduler.scheduled_job("interval", minutes=61, id="job_2")
+async def refriend_def():
+    print("SCHEDULER:job_2")
+    bot = get_bot()
+    stamp=await stamp_def(bot, 1, 2)
+    q3=await V.selecting(1000,"G5000","q3")
+    if q3[0]<=stamp[0]:
+        if not os.path.isfile(FP+"/tea/friend_list.json"):
+            os.chdir(FP)
+            try:
+                os.makedirs("tea")
+            except:
+                pass
+            file=open(FP+"/tea/friend_list.json","w")
+            file.write("")
+            file.close
+        friends_with_category=await bot.get_friends_with_category()
+        friend=friends_with_category[1]["buddyList"]
+        friend_list={}
+        for i in friend:
+            puid_a="P"+str(i["user_id"])
+            temp_1={puid_a:i}
+            friend_list.update(temp_1)
+        with open(FP+"/tea/friend_list.json","w",encoding='utf-8') as tea_json:
+            json.dump(friend_list,tea_json,indent=1)
+            tea_json.close()
+        await V.update(1000,"G5000","q3",stamp[0]+3600)
 
 
 #================================================
 async def birthday(bot, event, matcher):#Happy Birthday!
+    #========
+    #print(int(round(time.time()*1000)))
     #========
     #时间戳获取
     stamp=await stamp_def(bot, event, matcher)
     if start_stamp>=stamp[0]:#初始启动刻1分钟不执行任务
         await matcher.finish()
     #========
+    #print(int(round(time.time()*1000)))
     #id获取
     id=await id_def(bot, event, matcher)
     #========
+    #print(int(round(time.time()*1000)))
     #检测是否为三号机
     bot_id=nonebot.get_bots()
     if "2920883352" in bot_id and not id[1] in debug_group:
         await matcher.finish()
     #========
+    #print(int(round(time.time()*1000)))
     #代码版本查询（是否有新增/减少代码）
     await renew_def(bot, event, matcher,stamp,id)
     #========
+    #print(int(round(time.time()*1000)))
     #刷新好友列表
-    await refriend_def(bot, event, matcher,stamp,id)
+    #await refriend_def(bot, event, matcher,stamp,id)
     #========
+    #print(int(round(time.time()*1000)))
     #黑白名单查询
     iden=await iden_def(bot, event, matcher,stamp,id)
+    #print(int(round(time.time()*1000)))
     return([stamp,id,iden])
 #==============================================================================
 #时间戳获取
@@ -341,29 +436,6 @@ async def renew_def(bot, event, matcher,stamp,id):
 
 
 
-async def refriend_def(bot, event, matcher,stamp,id):
-    q3=await V.selecting(1000,"G5000","q3")
-    print(str(q3))
-    if q3[0]<=stamp[0]:
-        if not os.path.isfile(FP+"/tea/friend_list.json"):
-            os.chdir(FP)
-            try:
-                os.makedirs("tea")
-            except:
-                pass
-            file=open(FP+"/tea/friend_list.json","w")
-            file.write("")
-            file.close
-        friend=await bot.get_friend_list()
-        friend_list={}
-        for i in friend:
-            puid_a="P"+str(i["user_id"])
-            temp_1={puid_a:i}
-            friend_list.update(temp_1)
-        with open(FP+"/tea/friend_list.json","w",encoding='utf-8') as tea_json:
-            json.dump(friend_list,tea_json,indent=1)
-            tea_json.close()
-        await V.update(1000,"G5000","q3",stamp[0]+3600)
 
 
 async def iden_def(bot, event, matcher,stamp,id):
@@ -373,10 +445,8 @@ async def iden_def(bot, event, matcher,stamp,id):
     mid=id[2]
     puid="P"+str(uid)
     ggid="G"+str(gid)
-
-    with open(FP+"/tea/friend_list.json","r",encoding='utf-8') as tea_json:
-            friend_list=json.load(tea_json)
-            tea_json.close()
+    global friend_list
+    
     #是否为好友
     if puid in friend_list:
         friend=1
@@ -401,7 +471,12 @@ async def iden_def(bot, event, matcher,stamp,id):
             idenG=-1
     #群内是否存在辅助机
     if os.path.exists(FP+"/tea/group/"+str(gid)+".json"):
-        idenSub=1
+        getsize=os.path.getsize(FP+"/tea/group/"+str(gid)+".json")
+        if getsize>=256:
+            idenSub=1
+        else:
+            os.remove(FP+"/tea/group/"+str(gid)+".json")
+            idenSub=0
     else:
         idenSub=0
 
@@ -441,6 +516,9 @@ if A0!=version:
     tea_cur.execute("update G5000 set a0="+str(version)+" where user_id==1000")
 tea_db.commit()
 tea_db.close()
+with open(FP+"/tea/friend_list.json","r",encoding='utf-8') as tea_json:
+            friend_list=json.load(tea_json)
+            tea_json.close()
 #==============================================================================
 #获取唯一数值
 
@@ -453,3 +531,90 @@ tea_db.close()
 
 
 #结束后删除
+'''
+要使用Python调用API端点，你可以使用requests库。这是一个非常流行且易于使用的HTTP库。以下是一个简单的示例，展示了如何使用requests库来调用一个API端点：
+
+首先，你需要安装requests库（如果你还没有安装的话）。你可以使用以下命令通过pip进行安装：
+        
+bash
+复制代码
+pip install requests
+
+    
+然后，你可以编写Python代码来调用API端点。例如，假设你有一个GET请求的API端点，URL为https://api.example.com/data，你可以这样做：
+        
+python
+复制代码
+import requests
+
+# API端点的URL
+url = 'https://api.example.com/data'
+
+# 发送GET请求
+response = requests.get(url)
+
+# 检查响应状态码
+if response.status_code == 200:
+    # 解析JSON响应
+    data = response.json()
+    print(data)
+else:
+    print(f"请求失败，状态码: {response.status_code}")
+
+    
+如果API需要身份验证，你可以在请求中添加认证信息。例如，如果API使用Bearer Token进行认证，你可以这样做：
+        
+python
+复制代码
+import requests
+
+# API端点的URL
+url = 'https://api.example.com/data'
+
+# Bearer Token
+token = 'your_bearer_token_here'
+
+# 设置请求头
+headers = {
+    'Authorization': f'Bearer {token}',
+    'Content-Type': 'application/json'
+}
+
+# 发送GET请求
+response = requests.get(url, headers=headers)
+
+# 检查响应状态码
+if response.status_code == 200:
+    # 解析JSON响应
+    data = response.json()
+    print(data)
+else:
+    print(f"请求失败，状态码: {response.status_code}")
+
+    
+如果你需要发送POST请求并附带一些数据，可以这样做：
+        
+python
+复制代码
+import requests
+
+# API端点的URL
+url = 'https://api.example.com/data'
+
+# 要发送的数据
+payload = {
+    'key1': 'value1',
+    'key2': 'value2'
+}
+
+# 发送POST请求
+response = requests.post(url, json=payload)
+
+# 检查响应状态码
+if response.status_code == 200:
+    # 解析JSON响应
+    data = response.json()
+    print(data)
+else:
+    print(f"请求失败，状态码: {response.status_code}")
+'''

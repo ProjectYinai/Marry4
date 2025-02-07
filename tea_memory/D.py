@@ -7,6 +7,7 @@ import urllib
 import os
 
 #========
+import requests
 import sqlite3 as sql
 import keyboard
 import pathlib
@@ -107,6 +108,7 @@ async def authorization(bot, event,matcher,stamp,id,iden,no):
     ggid_a="G"+str(gid_a)
     print("D:authorization")
 
+
     if str(event.message)=="授权申请" or  str(event.message)=="申请授权":
         await matcher.finish()
     #确实是否为主群
@@ -132,15 +134,20 @@ async def authorization(bot, event,matcher,stamp,id,iden,no):
         else:
             temp_1=list(await V.execute("PRAGMA table_info("+str(ggid_a)+")"))
             g3=await V.selecting(1000,ggid_a,"g3")
+            a2=(await V.selecting(uid,"G5000","a2"))[0]
             if temp_1[0]==0:
                 point=2
             elif g3[0]!=0:
                 point=3
+            elif a2<1024:
+                point=5
             else:
                 
                 point=0
     except:
         point=4
+    
+
     print("point:"+str(point))
     if point==1:
         msg_1=["text","( 〞 0 ˄ 0 )错误代码：D-1。\n茉莉主号机不在该群内。"]
@@ -151,13 +158,22 @@ async def authorization(bot, event,matcher,stamp,id,iden,no):
         msg_0={"msg":[["reply",str(mid)],msg_1],"type":"G"}
         await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
     elif point==3:
-        msg_1=["text","( 〞 0 ˄ 0 )错误代码：D-3。\n本群已授权且已存在领养人。若想更改领养人，请联系茉莉的主人音奈更改。"]
+        msg_1=["text","( 〞 0 ˄ 0 )错误代码：D-3。\n本群已授权且已存在领养人。若想更改领养人，请联系茉莉的主人音奈更改。_n_不过更新了一下pjsk的授权~"]
         msg_0={"msg":[["reply",str(mid)],msg_1],"type":"G"}
         await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
+        #haruki
+        haruki_url="http://127.0.0.1:2525/haruki_client/controller/add_whitelist"
+        payload = {"module":"pjsk","group_ids":[int(gid_a)]}
+        requests.post(haruki_url, json=payload)
     elif point==4:
-        msg_1=["text","( 〞 0 ˄ 0 )错误代码：D-4。\n该群不存在！请确认群号是否输入正确，并保证群处于可搜索状态。"]
+        msg_1=["text","( 〞 0 ˄ 0 )错误代码：D-4。\n该群不存在！请确认群号是否输入正确，并保证茉莉在该群中。"]
         msg_0={"msg":[["reply",str(mid)],msg_1],"type":"G"}
         await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
+    elif point==5:
+        msg_1=["text","( 〞 0 ˄ 0 )错误代码：D-5。\n领养人好感度等级未到20级！"]
+        msg_0={"msg":[["reply",str(mid)],msg_1],"type":"G"}
+        await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
+    
     elif point==0:
         tea_db=sql.connect(FP+"/tea/tea_data.db")
         tea_cur=tea_db.cursor()
@@ -170,8 +186,10 @@ async def authorization(bot, event,matcher,stamp,id,iden,no):
         msg_1=["text","｡:.ﾟヽ(*´∀`)ﾉﾟ.:｡领养成功~"+_n+"领养群："+str(in_group["group_name"])+_n+"领养有效期：-1天，大概。"+_n+"请领养人不要删除茉莉好友！不要退出主群！可永久屏蔽主群！"]
         msg_0={"msg":[["at",str(uid)],msg_1],"type":"G"}
         await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
-    
-    
+        #写入haruki
+        haruki_url="http://127.0.0.1:2525/haruki_client/controller/add_whitelist"
+        payload = {"module":"pjsk","group_ids":[int(gid_a)]}
+        requests.post(haruki_url, json=payload)
 
         
 

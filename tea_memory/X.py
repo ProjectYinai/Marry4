@@ -7,6 +7,7 @@ import urllib
 import os
 
 #========
+import requests
 import sqlite3 as sql
 import keyboard
 import pathlib
@@ -48,7 +49,7 @@ async def tea_message(bot, event,matcher,stamp,id,iden):
     ggid="G"+str(gid)
     puid="P"+str(uid)
     msg_re="(ฅ・ー・)ฅ因以下某种原因，本群失去授权。"+_n+"1、领养人不再是群主或管理员身份。"+_n+"2、领养人退出了主群。"+_n+"3、领养人和茉莉不再是好友。"+_n+"4、出现了以为修复但并没有修复的bug。"+_n+"若为4请到主群咨询音奈。"
-    
+
     
     
     g2=(await V.selecting(1000,ggid,"g2"))[0]#群授权情况：1、
@@ -56,22 +57,26 @@ async def tea_message(bot, event,matcher,stamp,id,iden):
     #判断授权情况
 
     
-
     if gid:#授权判断
         if not g2:
             #若无授权，根据时间戳发送提醒。
             h2=(await V.selecting(1000,ggid,"h2"))[0]
             g4=(await V.selecting(1000,ggid,"g4"))[0]
             if h2<=stamp[0] and g4>=1:
-                g4=(await V.selecting(1000,ggid,"g4"))[0]
                 #发送消息
-                msg_1=["text","(ฅ・ー・)ฅ该群暂未授权，仅可使用普通的音游查询功能。若需好感互动系统和pjsk猜卡面功能，请联系茉莉的主人音奈，QQ号写在茉莉的个性签名哦~"+_n+"该消息最多再提醒"+str(g4-1)+"次。"]
+                msg_1=["text","(ฅ・ー・)ฅ该群暂未授权，请联系茉莉的主人音奈，QQ号写在茉莉的个性签名哦~"+_n+"10分钟内未授权茉莉将退群哦~"]
                 msg_0={"msg":[msg_1],"type":"G"}
                 await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
                 #设置群授权提醒时间戳
-                await V.update(1000,ggid,"h2",stamp[0]+259200)
+                await V.update(1000,ggid,"h2",stamp[0]+600)
                 #设置群授权提醒次数
                 await V.update(1000,ggid,"g4",g4-1)
+            elif h2<=stamp[0] and g4<=0:
+                await V.update(1000,ggid,"g2",0)
+                await V.update(1000,ggid,"g3",0)
+                await V.update(1000,ggid,"g4",2)
+                await V.update(1000,ggid,"h2",0)
+                await bot.set_group_leave(group_id=gid,is_dismiss=True)
         else:
             #若有授权：
             #1、领养人在主群内 
@@ -89,6 +94,10 @@ async def tea_message(bot, event,matcher,stamp,id,iden):
                     await V.update(1000,ggid,"h2",0)
                     msg_1=msg_re
                     await bot.send_group_msg(group_id=str(id[1]),message=msg_1)
+                    #haruki删除白名单
+                    haruki_url="http://127.0.0.1:2525/haruki_client/controller/remove_whitelist"
+                    payload = {"module":"pjsk","group_ids":[int(id[1])]}
+                    requests.post(haruki_url, json=payload)
             #2、判断辅助机是否在该群内。若在，二次判断领养人是否为管理员。
                 if os.path.isfile(FP+"/tea/group/"+str(gid)+".json"):
                     with open(FP+"/tea/group/"+str(gid)+".json","r",encoding='utf-8') as group_json:
@@ -105,6 +114,10 @@ async def tea_message(bot, event,matcher,stamp,id,iden):
                             await V.update(1000,ggid,"h2",0)
                             msg_1=msg_re
                             await bot.send_group_msg(group_id=str(id[1]),message=msg_1)
+                            #haruki删除白名单
+                            haruki_url="http://127.0.0.1:2525/haruki_client/controller/remove_whitelist"
+                            payload = {"module":"pjsk","group_ids":[int(id[1])]}
+                            requests.post(haruki_url, json=payload)
                     elif len(group_a["info"])==0:
                         pass
                     
@@ -121,8 +134,7 @@ async def tea_message(bot, event,matcher,stamp,id,iden):
                         if g2==1:
                             await V.update(1000,ggid,"g2",2)
             elif g3==0 and g2!=0:
-                await V.update(1000,ggid,"g2",0)
-                            
+                await V.update(1000,ggid,"g2",0)                      
     if gid:
         await V.update(uid,ggid,"t4",stamp[0])
 
@@ -152,7 +164,13 @@ async def tea_message(bot, event,matcher,stamp,id,iden):
                         except:
                             await V.execute("insert into "+ggid+"(user_id,group_id,s3) values ("+str(group_a["info"][i]["user_id"])+","+str(gid)+",\'"+card+"\')")
 
-
+    #删除90天没泡过红茶且为好友的好友
+    #缺漏是退群没有接收过消息的那些好友
+    #b1=(await V.selecting(uid,"G5000","b1"))[0]
+    #friend=iden[0]
+    #if b1+90<=stamp[4] and friend:
+        #pass
+        #await bot.delete_friend(user_id=uid)
 
 #获取唯一数值
 

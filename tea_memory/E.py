@@ -88,34 +88,34 @@ async def wife_rank(bot, event,matcher,stamp,id,iden):
 
     #第一名
     rank_1_card=(await V.selecting(s1_list[0][0],ggid,"s3"))[0]
-    rank_1_card=str(rank_1_card)
-    if rank_1_card == "0":
+    rank_1_card=rank_1_card
+    if rank_1_card == 0:
         rank_1_card="锟斤拷"
     a="1.【"+str(rank_1_card)+"】"+str(s1_list[0][1])+"次"
     #第二名
     rank_2_card=(await V.selecting(s1_list[1][0],ggid,"s3"))[0]
-    rank_2_card=str(rank_2_card)
-    if rank_2_card == "0":
+    rank_2_card=rank_2_card
+    if rank_2_card == 0:
         rank_2_card="锟斤拷"
     b="2.【"+str(rank_2_card)+"】"+str(s1_list[1][1])+"次"
     #第三名
     rank_3_card=(await V.selecting(s1_list[2][0],ggid,"s3"))[0]
-    rank_3_card=str(rank_3_card)
-    if rank_3_card == "0":
+    rank_3_card=rank_3_card
+    if rank_3_card == 0:
         rank_3_card="锟斤拷"
     c="3.【"+str(rank_3_card)+"】"+str(s1_list[2][1])+"次"
     #如果排名为前1,2,3,4名，则展示前五
     if index_u in [0,1,2,3,4]:
         #第四名
         rank_4_card=(await V.selecting(s1_list[3][0],ggid,"s3"))[0]
-        rank_4_card=str(rank_4_card)
-        if rank_4_card == "0":
+        rank_4_card=rank_4_card
+        if rank_4_card == 0:
             rank_4_card="锟斤拷"
         d="4.【"+str(rank_4_card)+"】"+str(s1_list[3][1])+"次"
         #第五名
         rank_5_card=(await V.selecting(s1_list[4][0],ggid,"s3"))[0]
-        rank_5_card=str(rank_5_card)
-        if rank_5_card == "0":
+        rank_5_card=rank_5_card
+        if rank_5_card == 0:
             rank_5_card="锟斤拷"
         e="5.【"+str(rank_5_card)+"】"+str(s1_list[4][1])+"次"
         #如果排名为1,2,3,4名
@@ -123,33 +123,43 @@ async def wife_rank(bot, event,matcher,stamp,id,iden):
             msg_2=["text",_n+a+_n+b+_n+c+_n+d+_n+e]
         elif index_u in [4]:
             rank_6_card=(await V.selecting(s1_list[5][0],ggid,"s3"))[0]
-            rank_6_card=str(rank_6_card)
-            if rank_6_card == "0":
+            rank_6_card=rank_6_card
+            if rank_6_card == 0:
                 rank_6_card="锟斤拷"
             f="6.【"+str(rank_6_card)+"】"+str(s1_list[5][1])+"次"
             msg_2=["text",_n+a+_n+b+_n+c+_n+d+_n+e+_n+f]
         msg_0={"msg":[["reply",str(mid)],msg_1,msg_2],"type":"G"}
         await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
     elif index_u!=-1:
-        #第n-1名
-        rank_4_card=(await V.selecting(s1_list[index_u-1][0],ggid,"s3"))[0]
-        rank_4_card=str(rank_4_card)
-        if rank_4_card == "0":
+        #第n-1名且不同分
+        for i in range(index_u+1):
+            if s1_list[i][1]==s1_list[index_u][1]:
+                index_ud=i-1
+                break
+            elif i==index_u:
+                index_ud=index_u-1
+                break
+        rank_4_card=(await V.selecting(s1_list[index_ud][0],ggid,"s3"))[0]
+        rank_4_card=rank_4_card
+        if rank_4_card == 0:
             rank_4_card="锟斤拷"
-        d=str(index_u)+".【"+str(rank_4_card)+"】"+str(s1_list[index_u-1][1])+"次"
+        d=str(index_ud+1)+".【"+str(rank_4_card)+"】"+str(s1_list[index_ud][1])+"次"
         #第n名
         rank_5_card=(await V.selecting(s1_list[index_u][0],ggid,"s3"))[0]
-        rank_5_card=str(rank_5_card)
-        if rank_5_card == "0":
+        rank_5_card=rank_5_card
+        if rank_5_card == 0:
             rank_5_card="锟斤拷"
         e=str(index_u+1)+".【"+str(rank_5_card)+"】"+str(s1_list[index_u][1])+"次"
         #第n+1名
-        rank_6_card=(await V.selecting(s1_list[index_u+1][0],ggid,"s3"))[0]
-        rank_6_card=str(rank_6_card)
-        if rank_6_card == "0":
-            rank_6_card="锟斤拷"
-        f=str(index_u+2)+".【"+str(rank_6_card)+"】"+str(s1_list[index_u+1][1])+"次"
-        msg_2=["text",_n+a+_n+b+_n+c+_n+"······"+_n+d+_n+e+_n+f]
+        if index_u+1!=len(s1_list):
+            rank_6_card=(await V.selecting(s1_list[index_u+1][0],ggid,"s3"))[0]
+            rank_6_card=rank_6_card
+            if rank_6_card == 0:
+                rank_6_card="锟斤拷"
+            f=str(index_u+2)+".【"+str(rank_6_card)+"】"+str(s1_list[index_u+1][1])+"次"
+            msg_2=["text",_n+a+_n+b+_n+c+_n+"······"+_n+d+_n+e+_n+f]
+        else:
+            msg_2=["text",_n+a+_n+b+_n+c+_n+"······"+_n+d+_n+e]
         msg_0={"msg":[["reply",str(mid)],msg_1,msg_2],"type":"G"}
         await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
     else:

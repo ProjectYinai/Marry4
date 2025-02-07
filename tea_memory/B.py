@@ -63,17 +63,17 @@ async def tea_fortune(bot, event,matcher,stamp,id,iden):
     msg_raw=str(event.message)
     no=re.findall("[0-9]{1,11}",msg_raw)
     
-    fortune_list=["元吉（最为吉祥）","大吉（非常吉祥）","吉（吉祥）","无咎（没有灾难）","悔（懊悔）","吝（困难）","厉（危险）","咎（小灾）","凶（凶祸）"]
+    fortune_list=["①大吉①","②小吉②","③吉③","④佳④","⑤安⑤","⑥平⑥","⑦亏⑦","⑧差⑧","⑨犯⑨","⑩凶⑩","⑪小凶⑪","⑫大凶⑫"]
     fortune_code=random.choice(fortune_list)
 
-    if fortune_code=="元吉（最为吉祥）" or fortune_code=="大吉（非常吉祥）" or fortune_code=="吉（吉祥）":
+    if fortune_code in ["①大吉①","②小吉②","③吉③","④佳④"]:
         msg_1=["text","(◍ > ω < ◍)店长抽到了："+fortune_code+"！"]
 
 
-    elif fortune_code=="无咎（没有灾难）" or fortune_code=="悔（懊悔）" or fortune_code=="吝（困难）":
+    elif fortune_code in ["⑤安⑤","⑥平⑥","⑦亏⑦","⑧差⑧"]:
         msg_1=["text","(*ﾟーﾟ)店长抽到了："+fortune_code+"！"]
 
-    elif fortune_code=="厉（危险）" or fortune_code=="咎（小灾）" or fortune_code=="凶（凶祸）":
+    elif fortune_code in ["⑨犯⑨","⑩凶⑩","⑪小凶⑪","⑫大凶⑫"]:
         msg_1=["text","( 〞 0 ˄ 0 )店长抽到了："+fortune_code+"！"]
 
     msg_0={"msg":[["reply",str(mid)],msg_1],"type":"G"}

@@ -5,7 +5,7 @@ import re
 import time
 import urllib
 import os
-
+import math
 #========
 import sqlite3 as sql
 import keyboard
@@ -93,8 +93,9 @@ async def tea_concentration(bot, event,matcher,stamp,id,iden,favour):
 
 
     favor=(await V.selecting(uid,"G5000","a2"))[0]
-    msg_1=["text","茉莉对店长大人的好感度超级大呢！"+_n+"大概"+str(favor)+"点吧ww~~"+_n+"[更详细的内容跟茉莉加好友后会偷偷发给店长呢ww~]"]
-    msg_0={"msg":[["reply",str(mid)],msg_1],"type":"G"}
+    msg_1=["text","["+favour[2]+"]_n_"]
+    msg_2=["text","茉莉对店长大人的好感度超级大呢！"+_n+"大概"+str(favor)+"点吧ww~~"+_n+"[更详细的内容跟茉莉加好友后会偷偷发给店长呢ww~]"]
+    msg_0={"msg":[["reply",str(mid)],msg_1,msg_2],"type":"G"}
     await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
 
     if iden[0]:
@@ -142,7 +143,7 @@ async def custom_nickname(bot, event,matcher,stamp,id,iden,favour):
             msg_0={"msg":[["reply",str(mid)],msg_1],"type":"G"}
             await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
 
-        if stamp_cn<=stamp[2]:
+        elif stamp_cn<=stamp[2] and len(msg_raw)<15:
             #发送群消息
             msg_1=["text","(*ﾟ∇ﾟ)明白啦，审核成功后茉莉就叫店长【"+msg_raw+"】了哦~"]
             msg_0={"msg":[["reply",str(mid)],msg_1],"type":"G"}
@@ -422,56 +423,86 @@ async def favour_def(bot, event, matcher,stamp,id):
 
     a2=await V.selecting(uid,"G5000","a2")
     favor=a2[0]
+    if favor <= 0:
+        favor=0
+        favor_level=0
+        favor_text=str(favor_level)
+    elif favor>=15360:
+        favor_level=(favor-15360)*10//2688+100
+        favor_text=str(favor_level)
+    elif favor>=12672:
+        favor_level=(favor-12672)*10//2432+90
+        favor_text=str(favor_level)
+    elif favor>=10240:
+        favor_level=(favor-10240)*10//2176+80
+        favor_text=str(favor_level)
+    elif favor>=8064:
+        favor_level=(favor-8064)*10//1920+70
+        favor_text=str(favor_level)
+    elif favor>=6144:
+        favor_level=(favor-6144)*10//1664+60
+        favor_text=str(favor_level)
+    elif favor>=4480:
+        favor_level=(favor-4480)*10//1408+50
+        favor_text=str(favor_level)
+    elif favor>=3072:
+        favor_level=(favor-3072)*10//1152+40
+        favor_text=str(favor_level)
+    elif favor>=1920:
+        favor_level=(favor-1920)*10//1152+30
+        favor_text=str(favor_level)
+    elif favor>=1024:
+        favor_level=(favor-1024)*10//896+20
+        favor_text=str(favor_level)
+    elif favor>=384:
+        favor_level=(favor-384)*10//640+10
+        favor_text=str(favor_level)
+    else:
+        favor_level=favor*10//384
+        favor_text=str(favor_level)
 
-    if favor>=16200:
-        favor_level="10"
+    
+    a4=(await V.selecting(uid,"G5000","a4"))[0]
+    if a4=="" or a4=="0" or a4==0:#判断是否有自定义昵称
+        s3=(await V.selecting(uid,ggid,"s3"))[0]
+        if s3==0:
+            card="锟斤拷"
+    else:
+        s3=a4
+    
+
+    if favor_level>=100:
         favor_name="蘑菇酱"
-        favor_text=str(((favor-16200)//400)+100)
-        favor_level_name="Lv."+favor_text+"-蘑菇蘑菇蘑菇酱"
-    elif favor>=12640:
-        favor_level="9"
+        favor_level_name="Lv."+favor_text+"-"+s3+"牌蘑菇酱"
+    elif favor_level>=90:
+        favor_name="比自己更加珍贵的存在"
+        favor_level_name="Lv."+favor_text+"-比自己更加珍贵的存在"
+    elif favor_level>=80:
         favor_name="无法取代的存在"
-        favor_text=str((favor-12640)//356)
-        favor_level_name="Lv.9"+favor_text+"-无法取代的存在"
-    elif favor>=9520:
-        favor_level="8"
+        favor_level_name="Lv."+favor_text+"-无法取代的存在"
+    elif favor_level>=70:
         favor_name="灵魂相连的伴侣"
-        favor_text=str((favor-9520)//312)
-        favor_level_name="Lv.8"+favor_text+"-灵魂相连的伴侣"
-    elif favor>=6840:
-        favor_level="7"
+        favor_level_name="Lv."+favor_text+"-灵魂相连的伴侣"
+    elif favor_level>=60:
         favor_name="值得信赖的伙伴"
-        favor_text=str((favor-6840)//268)
-        favor_level_name="Lv.7"+favor_text+"-值得信赖的伙伴"
-    elif favor>=4600:
-        favor_level="6"
+        favor_level_name="Lv."+favor_text+"-值得信赖的伙伴"
+    elif favor_level>=50:
         favor_name="亲密无间的朋友"
-        favor_text=str((favor-4600)//224)
-        favor_level_name="Lv.6"+favor_text+"-亲密无间的朋友"
-    elif favor>=2800:
-        favor_level="5"
+        favor_level_name="Lv."+favor_text+"-亲密无间的朋友"
+    elif favor_level>=40:
         favor_name="非常要好的朋友"
-        favor_text=str((favor-2800)//180)
-        favor_level_name="Lv.5"+favor_text+"-非常要好的朋友"
-    elif favor>=1440:
-        favor_level="4"
+        favor_level_name="Lv."+favor_text+"-非常要好的朋友"
+    elif favor_level>=30:
         favor_name="较为熟悉的朋友"
-        favor_text=str((favor-1440)//136)
-        favor_level_name="Lv.4"+favor_text+"-较为熟悉的朋友"  
-    elif favor>=520:
-        favor_level="3"
+        favor_level_name="Lv."+favor_text+"-较为熟悉的朋友"  
+    elif favor_level>=20:
         favor_name="相互认识的关系"
-        favor_text=str((favor-520)//92)
-        favor_level_name="Lv.3"+favor_text+"-相互认识的关系" 
-    elif favor>=40:
-        favor_level="2"
+        favor_level_name="Lv."+favor_text+"-相互认识的关系" 
+    elif favor_level>=10:
         favor_name="打过招呼的关系"
-        favor_text=str((favor-40)//48)
-        favor_level_name="Lv.2"+favor_text+"-打过招呼的关系"
+        favor_level_name="Lv."+favor_text+"-打过招呼的关系"
     else :
-        favor_level="1"
         favor_name="初次见面的关系"
-        favor_text=str(favor//2)
         favor_level_name="Lv."+favor_text+"-初次见面的关系"
 
     return([favor_level,favor_name,favor_level_name])

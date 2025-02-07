@@ -7,6 +7,7 @@ import urllib
 import os
 
 #========
+import requests
 import sqlite3 as sql
 import keyboard
 import pathlib
@@ -53,7 +54,58 @@ async def admin(bot, event,matcher,stamp,id,iden):
     elif re.search("/拒绝昵称",msg_raw):
         await disagree_custom_nickname(bot, event,matcher,stamp,id,iden)
     elif re.search("强制修改",msg_raw) or re.search("强制更改",msg_raw):
-         await force_modify(bot, event,matcher,stamp,id,iden)
+        await force_modify(bot, event,matcher,stamp,id,iden)
+    elif re.search("一键删除好友",msg_raw):
+        await delete_friend(bot, event,matcher,stamp,id,iden)
+    elif re.search("添加群白名单",msg_raw):
+        await add_whitelist(bot, event,matcher,stamp,id,iden)
+
+
+async def add_whitelist(bot, event,matcher,stamp,id,iden):
+    print("DEF:add_whitelist")
+    uid,gid,mid=id
+    puid="P"+str(uid)
+    ggid="G"+str(gid)
+    msg_raw=str(event.message)
+    no=re.findall("[0-9]{1,11}",str(event.raw_message))
+    gid_a=int(no[0])
+
+    haruki_url="http://127.0.0.1:2525/haruki_client/controller/add_whitelist"
+    payload = {"module":"pjsk","group_ids":[int(gid_a)]}
+    requests.post(haruki_url, json=payload)
+    msg_1=["text","（"+str(gid_a)+"）添加群白名单成功！"]
+    msg_0={"msg":[["reply",str(mid)],msg_1],"type":"G"}
+    await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
+    
+async def delete_friend(bot, event,matcher,stamp,id,iden):
+    print("DEF:force_modify")
+    uid,gid,mid=id
+    puid="P"+str(uid)
+    ggid="G"+str(gid)
+    msg_raw=str(event.message)
+
+    bot=get_bot()
+    friend=await bot.get_friends_with_category()
+
+    t1=0
+    t2=0
+    for i in friend[1]["buddyList"]:
+        #print("DEF:force_modify"+str(t1))
+        t1+=1
+        uid_a=i["user_id"]
+        b1=(await V.selecting(uid_a,"G5000","b1"))[0]
+        if b1+90<=stamp[4]:
+            await bot.delete_friend(user_id=uid_a)
+            time.sleep(1)
+            t2+=1
+        if t1%30==0:
+            msg_s=["text","已处理"+str(t1)+"人"+_n+"已删除"+str(t2)+"人"]
+            msg_0={"msg":[msg_s],"type":"G"}
+            await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
+    msg_s=["text","处理完毕！"]
+    msg_0={"msg":[msg_s],"type":"G"}
+    await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
+    
 
 async def force_modify(bot, event,matcher,stamp,id,iden):
     print("DEF:force_modify")

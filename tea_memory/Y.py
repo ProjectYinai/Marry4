@@ -5,7 +5,7 @@ import re
 import time
 import urllib
 import os
-
+import math
 #========
 import sqlite3 as sql
 import keyboard
@@ -37,32 +37,40 @@ pioneer=[2373725901,2687894198,2920568806,292069901,2920883352]
 start_stamp=int(time.time())+5
 from . import V,W
 
-async def tea_request(bot, event,matcher,stamp,id,iden):
-    print("CODE:Z")
+
+async def tea_notice(bot, event,matcher,stamp,id):
+    print("CODE:X")
     uid=id[0]
     gid=id[1]
     mid=id[2]
     ggid="G"+str(gid)
+    puid="P"+str(uid)
+    iden=[0]
 
-    request_type=str(event.request_type)
+    notice_type=str(event.notice_type)
+    if notice_type=="notify":
+        try:
+            sub_type=str(event.sub_type)
+            target_id=int(event.target_id)
+        except:
+            sub_type=""
+            target_id=0
+        if sub_type=="poke" and target_id==2920568806:
+            await poke(bot, event,matcher,stamp,id)
 
-    if request_type=="friend":
-        print("加好友申请٩( 'ω' )و get！")
-        flag_a=str(event.flag)
-        await bot.set_friend_add_request(flag=flag_a,approve=True)
-        time.sleep(3)
-        msg_1="(ฅ・▽・)ฅ店长早呢~"
-        await bot.send_private_msg(user_id=uid,message=msg_1)
-    elif request_type=="group":
-        #print("邀请加入群٩( 'ω' )و get！")
-        a2=(await V.selecting(uid,"G5000","a2"))[0]
-        sub_type=str(event.sub_type)
-        if sub_type=="invite" and not uid in pioneer and a2<1024:
-            flag_a=str(event.flag)
-            await bot.set_group_add_request(flag=flag_a,approve=False)
-        elif sub_type=="invite" and not uid in pioneer and a2>=1024:
-            flag_a=str(event.flag)
-            await bot.set_group_add_request(flag=flag_a,approve=True)
-        elif sub_type=="invite" and uid in pioneer:
-            flag_a=str(event.flag)
-            await bot.set_group_add_request(flag=flag_a,approve=True)
+async def poke(bot, event,matcher,stamp,id):
+    uid=id[0]
+    gid=str(event.group_id)
+    mid=id[2]
+    ggid="G"+str(gid)
+    puid="P"+str(uid)
+    iden=[0]
+
+
+    msg_1=["text","˚‧º·(˚ ˃̣̣̥᷄⌓˂̣̣̥᷅ )‧º·˚不要再戳茉莉啦~"]
+    msg_0={"msg":[msg_1],"type":"G"}
+    msg_0="˚‧º·(˚ ˃̣̣̥᷄⌓˂̣̣̥᷅ )‧º·˚不要再戳茉莉啦~"
+    msg_s={"type":"text","data":{"text":msg_0}}
+    await bot.send_group_msg(group_id=str(gid),message=msg_s)
+    time.sleep(0.1)
+
