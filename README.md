@@ -1,4 +1,4 @@
 # Marry4
-A cute bot that can prepare delicious black tea for you.
+A cute bot that can prepare delicious beverage for you.
 
-Dont look ./tea_data/image_white.png! Especially when drinking water!
+Including but not limited to caramel cappuccino with half sugar, ice, curry cheese, and chicken sauce.
