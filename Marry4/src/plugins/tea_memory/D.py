@@ -190,7 +190,7 @@ async def authorization(bot, event,matcher,stamp,id,iden,no):
                 point=2
             elif g3[0]!=0:
                 point=3
-            elif a2<1024:
+            elif a2<15360:
                 point=5
             else:
                 
@@ -221,7 +221,7 @@ async def authorization(bot, event,matcher,stamp,id,iden,no):
         msg_0={"msg":[["reply",str(mid)],msg_1],"type":"G"}
         await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
     elif point==5:
-        msg_1=["text","( 〞 0 ˄ 0 )错误代码：D-1-5。\n领养人好感度等级未到20级！"]
+        msg_1=["text","( 〞 0 ˄ 0 )错误代码：D-1-5。\n领养人好感度等级未到100级！"]
         msg_0={"msg":[["reply",str(mid)],msg_1],"type":"G"}
         await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
     

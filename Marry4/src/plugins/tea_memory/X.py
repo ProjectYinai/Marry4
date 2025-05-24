@@ -48,12 +48,13 @@ async def tea_message(bot, event,matcher,stamp,id,iden):
     mid=id[2]
     ggid="G"+str(gid)
     puid="P"+str(uid)
-    msg_re="(ฅ・ー・)ฅ因以下某种原因，本群失去授权。"+_n+"1、领养人不再是群主或管理员身份。"+_n+"2、领养人退出了主群。"+_n+"3、领养人和茉莉不再是好友。"+_n+"4、出现了以为修复但并没有修复的bug。"+_n+"若为4请到主群咨询音奈。"
+    msg_re="(ฅ・ー・)ฅ因以下某种原因，本群失去授权。"+_n+"1、领养人不再是群主或管理员身份。"+_n+"2、领养人退出了主群。"+_n+"3、领养人和茉莉不再是好友。"+_n+"4、群总人数超过500人但领养人不为管理员。"+_n+"5、出现了以为修复但并没有修复的bug。"+_n+"若为5请及时联系音奈。"
 
     
     
     g2=(await V.selecting(1000,ggid,"g2"))[0]#群授权情况：1、
     g3=(await V.selecting(1000,ggid,"g3"))[0]
+    g5=(await V.selecting(1000,ggid,"g5"))[0]
     #判断授权情况
 
     
@@ -66,9 +67,9 @@ async def tea_message(bot, event,matcher,stamp,id,iden):
                 #发送消息
                 msg_1=["text","(ฅ・ー・)ฅ该群暂未授权，请联系茉莉的主人音奈，QQ号写在茉莉的个性签名哦~"+_n+"10分钟内未授权茉莉将退群哦~"]
                 msg_0={"msg":[msg_1],"type":"G"}
-                await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
+                #await W.msg_sent(bot, event,matcher,stamp,id,iden,msg_0)
                 #设置群授权提醒时间戳
-                await V.update(1000,ggid,"h2",stamp[0]+600)
+                await V.update(1000,ggid,"h2",stamp[0]+60)
                 #设置群授权提醒次数
                 await V.update(1000,ggid,"g4",g4-1)
             elif h2<=stamp[0] and g4<=0:
@@ -93,7 +94,7 @@ async def tea_message(bot, event,matcher,stamp,id,iden):
                     await V.update(1000,ggid,"g4",2)
                     await V.update(1000,ggid,"h2",0)
                     msg_1=msg_re
-                    await bot.send_group_msg(group_id=str(id[1]),message=msg_1)
+                    #await bot.send_group_msg(group_id=str(id[1]),message=msg_1)
                     #haruki删除白名单
                     haruki_url="http://127.0.0.1:2525/haruki_client/controller/remove_whitelist"
                     payload = {"module":"pjsk","group_ids":[int(id[1])]}
@@ -104,16 +105,29 @@ async def tea_message(bot, event,matcher,stamp,id,iden):
                         group_a=json.load(group_json)
                         group_json.close()
                     if puid_a in group_a["info"]:
-                        if group_a["info"][puid_a]["role"]!="member":
+                        uid_a=str(g3)
+                        a2_a=(await V.selecting(int(uid_a),"G5000","a2"))[0]
+                        if group_a["info"][puid_a]["role"]!="member" and a2_a>=15360:
                             if g2==2:
                                 await V.update(1000,ggid,"g2",1)
+                            if g5>500 and group_a["info"][puid_a]["role"]!="owner":
+                                await V.update(1000,ggid,"g2",0)
+                                await V.update(1000,ggid,"g3",0)
+                                await V.update(1000,ggid,"g4",2)
+                                await V.update(1000,ggid,"h2",0)
+                                msg_1=msg_re
+                                #await bot.send_group_msg(group_id=str(id[1]),message=msg_1)
+                                #haruki删除白名单
+                                haruki_url="http://127.0.0.1:2525/haruki_client/controller/remove_whitelist"
+                                payload = {"module":"pjsk","group_ids":[int(id[1])]}
+                                requests.post(haruki_url, json=payload)
                         else:#领养人不为群主或管理员，清空授权，清空领养人，刷新提醒次数，刷新时间戳。
                             await V.update(1000,ggid,"g2",0)
                             await V.update(1000,ggid,"g3",0)
                             await V.update(1000,ggid,"g4",2)
                             await V.update(1000,ggid,"h2",0)
                             msg_1=msg_re
-                            await bot.send_group_msg(group_id=str(id[1]),message=msg_1)
+                            #await bot.send_group_msg(group_id=str(id[1]),message=msg_1)
                             #haruki删除白名单
                             haruki_url="http://127.0.0.1:2525/haruki_client/controller/remove_whitelist"
                             payload = {"module":"pjsk","group_ids":[int(id[1])]}
@@ -127,14 +141,22 @@ async def tea_message(bot, event,matcher,stamp,id,iden):
                         await V.update(1000,ggid,"g4",2)
                         await V.update(1000,ggid,"h2",0)
                         msg_1=msg_re
-                        await bot.send_group_msg(group_id=str(id[1]),message=msg_1)
+                        #await bot.send_group_msg(group_id=str(id[1]),message=msg_1)
+                        #haruki删除白名单
+                        haruki_url="http://127.0.0.1:2525/haruki_client/controller/remove_whitelist"
+                        payload = {"module":"pjsk","group_ids":[int(id[1])]}
+                        requests.post(haruki_url, json=payload)
                     
                 else:
                         #3、判断辅助机是否在该群内。若在，群授权g2=1，否则g2=2。
                         if g2==1:
                             await V.update(1000,ggid,"g2",2)
             elif g3==0 and g2!=0:
-                await V.update(1000,ggid,"g2",0)                      
+                await V.update(1000,ggid,"g2",0)  
+
+
+                
+                                    
     if gid:
         await V.update(uid,ggid,"t4",stamp[0])
 
@@ -145,7 +167,12 @@ async def tea_message(bot, event,matcher,stamp,id,iden):
                 with open(FP+"/tea/group/"+str(gid)+".json","r",encoding='utf-8') as group_a_json:
                     group_a=json.load(group_a_json)
                     group_a_json.close()
-                
+                #更新群总人数
+                try:
+                    await V.update(1000,ggid,"g5",len(group_a["info"]))
+                except:
+                    await V.update(1000,ggid,"g5",0)
+                #更新所有群成员的数据
                 for i in group_a["info"]:
                     if group_a["info"][i]["card"]=="":
                         nickname=group_a["info"][i]["nickname"]

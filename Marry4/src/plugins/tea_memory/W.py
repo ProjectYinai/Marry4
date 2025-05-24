@@ -91,9 +91,10 @@ async def msg_sent(bot, event,matcher,stamp,id,iden,msg_s):
             time.sleep(0.1)
         except:
             if time_1<=stamp[0]:
-                msg_t="群消息发送失败！请检查是否风控！"
-                await bot.send_private_msg(user_id=str(2373725901),message=msg_t)
-                time_1=stamp[0]+3600
+                pass
+                #msg_t="群消息发送失败！请检查是否风控！"
+                #await bot.send_private_msg(user_id=str(2373725901),message=msg_t)
+                #time_1=stamp[0]+3600
     elif friend:
         await bot.send_private_msg(user_id=str(uid),message=msg_t)
         time.sleep(0.1)

@@ -50,17 +50,16 @@ async def tea_request(bot, event,matcher,stamp,id,iden):
         print("加好友申请٩( 'ω' )و get！")
         flag_a=str(event.flag)
         await bot.set_friend_add_request(flag=flag_a,approve=True)
-        time.sleep(3)
-        msg_1="(ฅ・▽・)ฅ店长早呢~"
-        await bot.send_private_msg(user_id=uid,message=msg_1)
+
     elif request_type=="group":
+
         #print("邀请加入群٩( 'ω' )و get！")
         a2=(await V.selecting(uid,"G5000","a2"))[0]
         sub_type=str(event.sub_type)
-        if sub_type=="invite" and not uid in pioneer and a2<1024:
+        if sub_type=="invite" and not uid in pioneer and a2<15360:
             flag_a=str(event.flag)
-            await bot.set_group_add_request(flag=flag_a,approve=False)
-        elif sub_type=="invite" and not uid in pioneer and a2>=1024:
+            await bot.set_group_add_request(flag=flag_a,approve=False,reason="店长好感度等级不够呢——")
+        elif sub_type=="invite" and not uid in pioneer and a2>=15360:
             flag_a=str(event.flag)
             await bot.set_group_add_request(flag=flag_a,approve=True)
         elif sub_type=="invite" and uid in pioneer:

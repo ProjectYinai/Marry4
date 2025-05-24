@@ -52,7 +52,9 @@ async def tea_time(bot, event,matcher,stamp,id,iden):
     a_cup_of_marry=message_read_def("A1")
     favour=await favour_def(bot, event, matcher,stamp,id)
 
+
     if msg_raw=="泡茉莉":#泡茉莉随机选择
+
         dict_kind=a_cup_of_marry["kinds_of_tea"]
         list_kind=list(dict_kind)
         kind_key=random.choice(list_kind)
@@ -67,9 +69,12 @@ async def tea_time(bot, event,matcher,stamp,id,iden):
         await marry_greet(bot, event,matcher,stamp,id,iden,favour)
     #更改自定义昵称
     if re.search("茉莉以后叫我",msg_raw) or re.search("茉莉请叫我",msg_raw) or re.search("茉莉叫我",msg_raw):
+        if stamp[1]%86400>=68400 or stamp[1]%86400<=10800:
+            await matcher.finish()
         await custom_nickname(bot, event,matcher,stamp,id,iden,favour)
     #我的好感度
     if msg_raw in ["我的好感度","红茶浓度"]:
+
         await tea_concentration(bot, event,matcher,stamp,id,iden,favour)
 
 
@@ -490,26 +495,47 @@ async def favour_def(bot, event, matcher,stamp,id):
         favor=0
         favor_level=0
         favor_text=str(favor_level)
+        favor_text_hex=favor_text
+    else:
+        favor=favor*1000
+        favor_level=0
+        fixture=12000
+        variety=375
+
+        while favor > 0 and favor_level <256:
+            favor_level+=1
+            favor-=fixture+variety*favor_level
+
+        while favor > 0 and favor_level >=256:
+            favor_level+=1
+            favor-=108000
+        favor_level-=1
+        favor_text_hex=str(hex(favor_level))
+        favor_text_hex=favor_text_hex.replace("0x","")
+        favor_text_hex=favor_text_hex.upper()
+        favor_text_hex="0x"+favor_text_hex
+
+    """
     elif favor>=15360:
-        favor_level=(favor-15360)*10//2688+100
+        favor_level=(favor-15360)*10//2944+100
         favor_text=str(favor_level)
     elif favor>=12672:
-        favor_level=(favor-12672)*10//2432+90
+        favor_level=(favor-12672)*10//2688+90
         favor_text=str(favor_level)
     elif favor>=10240:
-        favor_level=(favor-10240)*10//2176+80
+        favor_level=(favor-10240)*10//2432+80
         favor_text=str(favor_level)
     elif favor>=8064:
-        favor_level=(favor-8064)*10//1920+70
+        favor_level=(favor-8064)*10//2176+70
         favor_text=str(favor_level)
     elif favor>=6144:
-        favor_level=(favor-6144)*10//1664+60
+        favor_level=(favor-6144)*10//1920+60
         favor_text=str(favor_level)
     elif favor>=4480:
-        favor_level=(favor-4480)*10//1408+50
+        favor_level=(favor-4480)*10//1664+50
         favor_text=str(favor_level)
     elif favor>=3072:
-        favor_level=(favor-3072)*10//1152+40
+        favor_level=(favor-3072)*10//1408+40
         favor_text=str(favor_level)
     elif favor>=1920:
         favor_level=(favor-1920)*10//1152+30
@@ -523,6 +549,10 @@ async def favour_def(bot, event, matcher,stamp,id):
     else:
         favor_level=favor*10//384
         favor_text=str(favor_level)
+    """
+
+
+
 
     
     a4=(await V.selecting(uid,"G5000","a4"))[0]
@@ -534,39 +564,39 @@ async def favour_def(bot, event, matcher,stamp,id):
         s3=a4
     
 
-    if favor_level>=100:
+    if favor_level>=256:
         favor_name="蘑菇酱"
-        favor_level_name="Lv."+favor_text+"-"+s3+"牌蘑菇酱"
-    elif favor_level>=90:
-        favor_name="比自己更加珍贵的存在"
-        favor_level_name="Lv."+favor_text+"-比自己更加珍贵的存在"
-    elif favor_level>=80:
+        favor_level_name="Lv."+favor_text_hex+"-"+s3+"牌蘑菇酱"
+    #elif favor_level>=90:
+        #favor_name="比自己更加珍贵的存在"
+        #favor_level_name="Lv."+favor_text+"-比自己更加珍贵的存在"
+    elif favor_level>=224:
         favor_name="无法取代的存在"
-        favor_level_name="Lv."+favor_text+"-无法取代的存在"
-    elif favor_level>=70:
+        favor_level_name="Lv."+favor_text_hex+"-无法取代的存在"
+    elif favor_level>=192:
         favor_name="灵魂相连的伴侣"
-        favor_level_name="Lv."+favor_text+"-灵魂相连的伴侣"
-    elif favor_level>=60:
+        favor_level_name="Lv."+favor_text_hex+"-灵魂相连的伴侣"
+    elif favor_level>=160:
         favor_name="值得信赖的伙伴"
-        favor_level_name="Lv."+favor_text+"-值得信赖的伙伴"
-    elif favor_level>=50:
+        favor_level_name="Lv."+favor_text_hex+"-值得信赖的伙伴"
+    elif favor_level>=128:
         favor_name="亲密无间的朋友"
-        favor_level_name="Lv."+favor_text+"-亲密无间的朋友"
-    elif favor_level>=40:
+        favor_level_name="Lv."+favor_text_hex+"-亲密无间的朋友"
+    elif favor_level>=96:
         favor_name="非常要好的朋友"
-        favor_level_name="Lv."+favor_text+"-非常要好的朋友"
-    elif favor_level>=30:
+        favor_level_name="Lv."+favor_text_hex+"-非常要好的朋友"
+    elif favor_level>=64:
         favor_name="较为熟悉的朋友"
-        favor_level_name="Lv."+favor_text+"-较为熟悉的朋友"  
-    elif favor_level>=20:
+        favor_level_name="Lv."+favor_text_hex+"-较为熟悉的朋友"  
+    elif favor_level>=32:
         favor_name="相互认识的关系"
-        favor_level_name="Lv."+favor_text+"-相互认识的关系" 
-    elif favor_level>=10:
-        favor_name="打过招呼的关系"
-        favor_level_name="Lv."+favor_text+"-打过招呼的关系"
+        favor_level_name="Lv."+favor_text_hex+"-相互认识的关系" 
+    #elif favor_level>=10:
+        #favor_name="打过招呼的关系"
+        #favor_level_name="Lv."+favor_text+"-打过招呼的关系"
     else :
         favor_name="初次见面的关系"
-        favor_level_name="Lv."+favor_text+"-初次见面的关系"
+        favor_level_name="Lv."+favor_text_hex+"-初次见面的关系"
 
     return([favor_level,favor_name,favor_level_name])
 

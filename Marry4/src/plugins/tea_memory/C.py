@@ -59,6 +59,38 @@ async def admin(bot, event,matcher,stamp,id,iden):
         await delete_friend(bot, event,matcher,stamp,id,iden)
     elif re.search("添加群白名单",msg_raw):
         await add_whitelist(bot, event,matcher,stamp,id,iden)
+    elif re.search("强制更新好友列表",msg_raw):
+        await force_get_friend_list(bot, event,matcher,stamp,id,iden)
+
+async def force_get_friend_list(bot, event,matcher,stamp,id,iden):
+    print("force_get_friend_list")
+    uid,gid,mid=id
+    puid="P"+str(uid)
+    ggid="G"+str(gid)
+    msg_raw=str(event.message)
+
+    bot = get_bot()
+    q3=await V.selecting(1000,"G5000","q3")
+    if q3[0]<=stamp[0]:
+        if not os.path.isfile(FP+"/tea/friend_list.json"):
+            os.chdir(FP)
+            try:
+                os.makedirs("tea")
+            except:
+                pass
+            file=open(FP+"/tea/friend_list.json","w")
+            file.write("")
+            file.close
+        friend=(await bot.get_friend_list())
+        friend_list={}
+        for i in friend:
+            puid_a="P"+str(i["user_id"])
+            temp_1={puid_a:i}
+            friend_list.update(temp_1)
+        with open(FP+"/tea/friend_list.json","w",encoding='utf-8') as tea_json:
+            json.dump(friend_list,tea_json,indent=1)
+            tea_json.close()
+        await V.update(1000,"G5000","q3",stamp[0]+3600)
 
 
 async def add_whitelist(bot, event,matcher,stamp,id,iden):

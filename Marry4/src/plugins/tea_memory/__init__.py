@@ -5,9 +5,12 @@ import re
 import time
 import urllib
 import os
+import subprocess
+
 
 #========
 import sqlite3 as sql
+import psutil
 import keyboard
 import pathlib
 import asyncio
@@ -37,13 +40,13 @@ debug_group=[555679990,807879174,766536274,730423314,669546286,606731240]
 pioneer=[2373725901,2687894198,2920568806,292069901,2920883352]
 start_stamp=int(time.time())+5
 global tea_db,tea_cur
-version=240731
+version=250405
 temp_stamp=int(time.time())
 code_lista=["a1","a2","a3","a4","a5","a6","a7","a8","a9","a10",
             "b1","b2","b3","b4","b5","b6","b7","b8","b9","b10","b11","b12",
             "p1",
             "q1","q2","q3"]
-code_listg=["g1","g2","g3","g4",
+code_listg=["g1","g2","g3","g4","g5",
             "h1","h2",
             "s1","s2","s3",
             "t1","t2","t3","t4"]
@@ -56,11 +59,9 @@ async def X_tea_message(bot: Bot, event: Event, matcher: Matcher):
     #储存数据
     #监测领养人管理员身份#
     #未授权提示
-    print("HANDLE:X")
-    print(int(round(time.time()*1000)))
+    #print("HANDLE:X")
     stamp,id,iden=await birthday(bot, event, matcher)
     await X.tea_message(bot, event,matcher,stamp,id,iden)
-    print(int(round(time.time()*1000)))
     await matcher.finish()
 
 Y_tea_notice=on_notice(priority=99,block=False)
@@ -111,6 +112,8 @@ async def B_help(bot: Bot, event: Event, matcher: Matcher):
     print("HANDLE:B")
     #print(int(round(time.time()*1000)))
     stamp,id,iden=await birthday(bot, event, matcher)
+    if stamp[1]%86400>=68400 or stamp[1]%86400<=10800:
+        await matcher.finish()
     if iden[1] and iden[2] and iden[3]:
         await B.help(bot, event,matcher,stamp,id,iden)
     #print(int(round(time.time()*1000)))
@@ -118,7 +121,7 @@ async def B_help(bot: Bot, event: Event, matcher: Matcher):
 
 
 
-command_C1={"一键删除好友"}
+command_C1={"一键删除好友","强制更新好友列表"}
 command_C2={"/同意昵称","/拒绝昵称","强制刷新群",
             "强制修改","强制更改",
             "添加群白名单"}
@@ -169,6 +172,8 @@ async def E_group_wife(bot: Bot, event: Event, matcher: Matcher):
     print("HANDLE:E")
     #print(int(round(time.time()*1000)))
     stamp,id,iden=await birthday(bot, event, matcher)
+    if stamp[1]%86400>=68400 or stamp[1]%86400<=10800:
+        await matcher.finish()
     if iden[1] and iden[2] and iden[3]:
         await E.group_wife(bot, event,matcher,stamp,id,iden)
     #print(int(round(time.time()*1000)))
@@ -187,7 +192,7 @@ async def run_every_1_hour():
             tea_json.close()
 
 
-@scheduler.scheduled_job("cron", hour="3", id="job_1")
+#@scheduler.scheduled_job("cron", hour="3", id="job_1")
 async def run_every_1_day():
     print("SCHEDULER:job_1")
     bot = get_bot()
@@ -207,7 +212,7 @@ async def run_every_1_day():
             time.sleep(1)
             t2+=1
 
-@scheduler.scheduled_job("interval", minutes=61, id="job_2")
+#@scheduler.scheduled_job("interval", minutes=61, id="job_2")
 async def refriend_def():
     print("SCHEDULER:job_2")
     bot = get_bot()
@@ -236,6 +241,75 @@ async def refriend_def():
         await V.update(1000,"G5000","q3",stamp[0]+3600)
 
 
+@scheduler.scheduled_job("cron", hour="6",minute="55",second="0", id="job_3")
+async def run_every_3_day():
+    print("SCHEDULER:job_3")
+    os.startfile("E:\\HarukiClient\\HarukiClient-Windows-x64-v1.1.5.exe")
+    
+
+
+@scheduler.scheduled_job("cron", hour="22",minute="55",second="0", id="job_4")
+async def run_every_4_day():
+    print("SCHEDULER:job_4")
+    bot = get_bot()
+    msg_t="(*ﾟ∇ﾟ)店长们晚安哦——"
+    await bot.send_group_msg(group_id=str(555679990),message=msg_t)
+    for proc in psutil.process_iter(['pid', 'name']):
+        if proc.info['name'] == 'HarukiClient-Windows-x64-v1.1.5.exe':
+            print(f"找到进程: PID={proc.info['pid']}, 名称={proc.info['name']}")
+            pid=proc.info['pid']
+            proccess=psutil.Process(pid)
+            proccess.terminate()
+    
+    
+
+@scheduler.scheduled_job("cron", hour="3", id="job_5")
+async def run_every_1_day():
+    print("SCHEDULER:job_1")
+    bot = get_bot()
+    stamp=await stamp_def(bot, 1, 2)
+    bot=get_bot()
+    friend=await bot.get_friend_list()
+
+    t1=0
+    t2=0
+    for i in friend:
+        #print("DEF:force_modify"+str(t1))
+        t1+=1
+        uid_a=i["user_id"]
+        b1=(await V.selecting(uid_a,"G5000","b1"))[0]
+        if b1+90<=stamp[4]:
+            await bot.delete_friend(user_id=uid_a)
+            time.sleep(1)
+            t2+=1
+
+@scheduler.scheduled_job("interval", minutes=61, id="job_6")
+async def refriend_def():
+    print("SCHEDULER:job_2")
+    bot = get_bot()
+    stamp=await stamp_def(bot, 1, 2)
+    q3=await V.selecting(1000,"G5000","q3")
+    if q3[0]<=stamp[0]:
+        if not os.path.isfile(FP+"/tea/friend_list.json"):
+            os.chdir(FP)
+            try:
+                os.makedirs("tea")
+            except:
+                pass
+            file=open(FP+"/tea/friend_list.json","w")
+            file.write("")
+            file.close
+        friend=(await bot.get_friend_list())
+        friend_list={}
+        for i in friend:
+            puid_a="P"+str(i["user_id"])
+            temp_1={puid_a:i}
+            friend_list.update(temp_1)
+        with open(FP+"/tea/friend_list.json","w",encoding='utf-8') as tea_json:
+            json.dump(friend_list,tea_json,indent=1)
+            tea_json.close()
+        await V.update(1000,"G5000","q3",stamp[0]+3600)
+
 #================================================
 async def birthday(bot, event, matcher):#Happy Birthday!
     #========
@@ -252,9 +326,9 @@ async def birthday(bot, event, matcher):#Happy Birthday!
     #========
     #print(int(round(time.time()*1000)))
     #检测是否为三号机
-    bot_id=nonebot.get_bots()
-    if "2920883352" in bot_id and not id[1] in debug_group:
-        await matcher.finish()
+    #bot_id=nonebot.get_bots()
+    #if "2920883352" in bot_id and not id[1] in debug_group:
+        #await matcher.finish()
     #========
     #print(int(round(time.time()*1000)))
     #代码版本查询（是否有新增/减少代码）
@@ -272,7 +346,7 @@ async def birthday(bot, event, matcher):#Happy Birthday!
 #==============================================================================
 #时间戳获取
 async def stamp_def(bot, event, matcher):
-    birthday=1513971000
+    birthday=1513972500
     time_stamp=int(time.time())
     time_interval=time_stamp-birthday
     time_stamp_sec=int(time_interval)
